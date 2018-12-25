@@ -8,6 +8,9 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
+
+import com.moneytap.utils.Utils;
 
 public class WebviewActivity extends AppCompatActivity {
     final String TAG = WebviewActivity.class.getSimpleName();
@@ -19,7 +22,7 @@ public class WebviewActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String url = intent.getStringExtra("url");
         Log.d(TAG, "onCreate: " +url);
-        if(url!=null){
+        if(url!=null & Utils.isNetworkAvailable(WikiApplication.getAppContext())){
             WebView webView = findViewById(R.id.webview);
             webView.setWebViewClient(new WebViewClient(){
                 @Override
@@ -29,6 +32,8 @@ public class WebviewActivity extends AppCompatActivity {
                 }
             });
             webView.loadUrl(url);
+        }else{
+            Toast.makeText(this,getResources().getString(R.string.webview_error_message),Toast.LENGTH_SHORT).show();
         }
 
     }

@@ -11,12 +11,15 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.moneytap.models.Page;
+import com.moneytap.utils.Utils;
 import com.moneytap.wikisearch.R;
 import com.moneytap.wikisearch.WebviewActivity;
+import com.moneytap.wikisearch.WikiApplication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +79,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.ViewHolder> {
         TextView itemName,description;
         ImageView thumbnail;
 
-        public ViewHolder(View view){
+        public ViewHolder(final View view){
             super(view);
             itemName = view.findViewById(R.id.itemTv);
             description = view.findViewById(R.id.descriptionTv);
@@ -85,11 +88,16 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.ViewHolder> {
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String url=pagesList.get(getAdapterPosition()).getUrl();
-                    Log.d(TAG,"adapter url:"+url);
-                    Intent webview =new Intent(v.getContext(),WebviewActivity.class);
-                    webview.putExtra("url",url);
-                    v.getContext().startActivity(webview);
+                    if(Utils.isNetworkAvailable(WikiApplication.getAppContext())){
+                        String url=pagesList.get(getAdapterPosition()).getUrl();
+                        Log.d(TAG,"adapter url:"+url);
+                        Intent webview =new Intent(v.getContext(),WebviewActivity.class);
+                        webview.putExtra("url",url);
+                        v.getContext().startActivity(webview);
+                    }else{
+                        Toast.makeText(WikiApplication.getAppContext(),WikiApplication.getAppContext().getResources().getString(R.string.network_error),Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             });
         }
