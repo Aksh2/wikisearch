@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.moneytap.utils.Utils;
 import com.moneytap.wikisearch.WikiApplication;
 
 import java.io.File;
@@ -33,12 +34,14 @@ public class NetworkService {
         return INSTANCE;
     }
 
+
+
     private static final Interceptor REWRITE_CACHE_CONTROL_INTERCEPTOR = new Interceptor() {
         @Override
         public okhttp3.Response intercept(Chain chain) throws IOException {
             okhttp3.Response originalResponse = chain.proceed(chain.request());
-            if (isNetworkAvailable(WikiApplication.getAppContext())) {
-                int maxAge = 60; // read from cache for 1 minute
+            if (Utils.isNetworkAvailable(WikiApplication.getAppContext())) {
+                int maxAge = 60*5; // read from cache for 5 minutes
                 return originalResponse.newBuilder()
                         .header("Cache-Control", "public, max-age=" + maxAge)
                         .build();
@@ -51,12 +54,7 @@ public class NetworkService {
         }
     };
 
-    private static boolean isNetworkAvailable(Context context) {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
+
 
 
     public static Retrofit createApiClient() {
@@ -84,9 +82,8 @@ public class NetworkService {
         return retrofit;
     }
 
-    NetworkService() {
+   private NetworkService() {
         retrofitInterface = createApiClient().create(RetrofitInterface.class);
-
     }
 
     public Observable<com.moneytap.models.Response> queryArticle(String query) {
